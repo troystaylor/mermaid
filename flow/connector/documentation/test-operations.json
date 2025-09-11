@@ -1,0 +1,37 @@
+{
+  "testMermaidDiagram": {
+    "name": "Simple Contact Management Test",
+    "description": "Test diagram to validate Dataverse operations",
+    "diagram": "erDiagram\n    CONTACT {\n        string firstname\n        string lastname\n        string email\n        datetime createdon\n    }\n    ACCOUNT {\n        string name\n        string industry\n        decimal revenue\n        datetime createdon\n    }\n    CONTACT ||--o{ ACCOUNT : \"works for\"\n",
+    "expectedResults": {
+      "tables": ["CONTACT", "ACCOUNT"],
+      "attributes": {
+        "CONTACT": ["firstname", "lastname", "email", "createdon"],
+        "ACCOUNT": ["name", "industry", "revenue", "createdon"]
+      },
+      "relationships": [
+        {
+          "from": "CONTACT",
+          "to": "ACCOUNT", 
+          "type": "one-to-many",
+          "description": "works for"
+        }
+      ]
+    }
+  },
+  "connectorTestPayload": {
+    "mermaidDiagram": "erDiagram\n    CONTACT {\n        string firstname\n        string lastname\n        string email\n        datetime createdon\n    }\n    ACCOUNT {\n        string name\n        string industry\n        decimal revenue\n        datetime createdon\n    }\n    CONTACT ||--o{ ACCOUNT : \"works for\"\n",
+    "dataverseEnvironmentUrl": "https://[your-environment].crm.dynamics.com",
+    "createNewTables": true,
+    "updateExistingTables": true,
+    "createRelationships": true
+  },
+  "testInstructions": {
+    "step1": "Update dataverseEnvironmentUrl with your actual environment URL",
+    "step2": "Create OAuth connection in Power Platform",
+    "step3": "Test ParseMermaidERD operation first (no auth required)",
+    "step4": "Test ConvertAndUpsertToDataverse operation (OAuth required)",
+    "step5": "Verify tables created in Dataverse: new_contact and new_account",
+    "step6": "Check for lookup relationship from contact to account"
+  }
+}

@@ -1,0 +1,306 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Mermaid to Dataverse Converter",
+    "description": "Transform Mermaid diagrams (ERD, Class, and 20+ other types) into Microsoft Dataverse entity definitions with automatic CDM detection, comprehensive validation, and seamless integration for data modeling workflows in Power Platform environments.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Troy Taylor",
+      "email": "troy@troystaylor.com"
+    }
+  },
+  "host": "troystaylor.com",
+  "basePath": "/api",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/parse-mermaid": {
+      "post": {
+        "operationId": "ParseMermaidDiagram",
+        "summary": "Parse Mermaid diagram",
+        "description": "Transform Mermaid diagram syntax (ERD, Class, Flowchart, etc.) into structured data with optional CDM detection for supported types",
+        "x-ms-visibility": "important",
+        "security": [],
+        "parameters": [
+          {
+            "name": "ParseRequest",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "mermaidContent"
+              ],
+              "properties": {
+                "mermaidContent": {
+                  "type": "string",
+                  "x-ms-summary": "Mermaid Diagram Content",
+                  "description": "The complete Mermaid diagram content (supports ERD, Class, Flowchart, Sequence, and 20+ other diagram types)"
+                },
+                "validateSyntax": {
+                  "type": "boolean",
+                  "default": true,
+                  "x-ms-summary": "Validate Syntax",
+                  "description": "Perform comprehensive syntax validation on the diagram content",
+                  "x-ms-visibility": "advanced"
+                },
+                "detectCDM": {
+                  "type": "boolean",
+                  "default": true,
+                  "x-ms-summary": "Detect CDM Entities",
+                  "description": "Automatically detect matching Common Data Model entities",
+                  "x-ms-visibility": "advanced"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mermaid diagram successfully parsed and processed",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "x-ms-summary": "Processing Success"
+                },
+                "entities": {
+                  "type": "array",
+                  "x-ms-summary": "Parsed Entities",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "x-ms-summary": "Entity Name"
+                      },
+                      "logicalName": {
+                        "type": "string",
+                        "x-ms-summary": "Logical Name"
+                      },
+                      "attributes": {
+                        "type": "array",
+                        "x-ms-summary": "Entity Attributes",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "name": {
+                              "type": "string",
+                              "x-ms-summary": "Attribute Name"
+                            },
+                            "dataType": {
+                              "type": "string",
+                              "x-ms-summary": "Data Type"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid diagram content or request parameters",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "x-ms-summary": "Error Code"
+                    },
+                    "message": {
+                      "type": "string",
+                      "x-ms-summary": "Error Message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/convert-and-upsert": {
+      "post": {
+        "operationId": "ConvertAndUpsertToDataverse",
+        "summary": "Convert diagram and upsert to Dataverse",
+        "description": "Complete workflow: parse Mermaid diagram, convert to Dataverse schema (for supported types), and perform upsert operations directly in the target Dataverse environment",
+        "x-ms-visibility": "important",
+        "security": [
+          {
+            "oauth2": [
+              "https://service.powerapps.com//.default"
+            ]
+          }
+        ],
+        "parameters": [
+          {
+            "name": "Authorization",
+            "in": "header",
+            "required": true,
+            "type": "string",
+            "x-ms-summary": "Authorization Token",
+            "description": "Bearer token for Dataverse authentication (automatically provided when using OAuth connection)",
+            "x-ms-visibility": "internal"
+          },
+          {
+            "name": "UpsertRequest",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "type": "object",
+              "required": [
+                "mermaidContent",
+                "dataverseEnvironment"
+              ],
+              "properties": {
+                "mermaidContent": {
+                  "type": "string",
+                  "x-ms-summary": "Mermaid Diagram Content",
+                  "description": "The complete Mermaid diagram content (ERD and Class diagrams support Dataverse conversion)"
+                },
+                "dataverseEnvironment": {
+                  "type": "string",
+                  "x-ms-summary": "Dataverse Environment URL",
+                  "description": "Target Dataverse environment URL (e.g., https://orgname.crm.dynamics.com)"
+                },
+                "publisherPrefix": {
+                  "type": "string",
+                  "x-ms-summary": "Publisher Prefix",
+                  "description": "Publisher prefix for custom entities (e.g., 'contoso')",
+                  "pattern": "^[a-z][a-z0-9]*$",
+                  "maxLength": 8
+                },
+                "solutionName": {
+                  "type": "string",
+                  "x-ms-summary": "Solution Name",
+                  "description": "Name of the Dataverse solution to contain the entities",
+                  "maxLength": 50
+                },
+                "dryRun": {
+                  "type": "boolean",
+                  "default": false,
+                  "x-ms-summary": "Dry Run Mode",
+                  "description": "Preview operations without making actual changes to Dataverse",
+                  "x-ms-visibility": "advanced"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Diagram successfully converted and upserted to Dataverse",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "success": {
+                  "type": "boolean",
+                  "x-ms-summary": "Upsert Success"
+                },
+                "operationSummary": {
+                  "type": "object",
+                  "x-ms-summary": "Operation Summary",
+                  "properties": {
+                    "totalOperations": {
+                      "type": "integer",
+                      "x-ms-summary": "Total Operations"
+                    },
+                    "successfulOperations": {
+                      "type": "integer",
+                      "x-ms-summary": "Successful Operations"
+                    },
+                    "failedOperations": {
+                      "type": "integer",
+                      "x-ms-summary": "Failed Operations"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid diagram content or upsert parameters",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "x-ms-summary": "Error Code"
+                    },
+                    "message": {
+                      "type": "string",
+                      "x-ms-summary": "Error Message"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access to Dataverse environment",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "error": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string",
+                      "x-ms-summary": "Error Code"
+                    },
+                    "message": {
+                      "type": "string",
+                      "x-ms-summary": "Error Message"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "oauth2": {
+      "type": "oauth2",
+      "flow": "accessCode",
+      "authorizationUrl": "https://login.microsoftonline.com/common/oauth2/v2.0/authorize",
+      "tokenUrl": "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+      "scopes": {
+        "https://service.powerapps.com//.default": "Access to Power Platform and Dataverse APIs"
+      }
+    }
+  },
+  "x-ms-connector-metadata": [
+    {
+      "propertyName": "Website",
+      "propertyValue": "https://troystaylor.com"
+    },
+    {
+      "propertyName": "Privacy policy",
+      "propertyValue": "https://troystaylor.com/"
+    },
+    {
+      "propertyName": "Categories",
+      "propertyValue": "Business Intelligence;Productivity"
+    }
+  ]
+}

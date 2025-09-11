@@ -1,0 +1,94 @@
+{
+  "properties": {
+    "connectionParameterSets": {
+      "uiDefinition": {
+        "displayName": "Authentication Type",
+        "description": "Choose your authentication method"
+      },
+      "values": [
+        {
+          "name": "noauth",
+          "uiDefinition": {
+            "displayName": "No Authentication",
+            "description": "For parsing operations only - no Dataverse access"
+          },
+          "parameters": {}
+        },
+        {
+          "name": "oauth",
+          "uiDefinition": {
+            "displayName": "OAuth 2.0",
+            "description": "For full Dataverse integration (required for convert operations)"
+          },
+          "parameters": {
+            "clientId": {
+              "type": "string",
+              "uiDefinition": {
+                "displayName": "Client ID",
+                "description": "The Application (client) ID from your Azure AD app registration",
+                "tooltip": "Get this from Azure AD app registration overview page",
+                "constraints": {
+                  "tabIndex": 1,
+                  "required": "true",
+                  "capability": [
+                    "cloud"
+                  ]
+                }
+              }
+            },
+            "clientSecret": {
+              "type": "securestring",
+              "uiDefinition": {
+                "displayName": "Client Secret",
+                "description": "The client secret value from your Azure AD app registration",
+                "tooltip": "Create a new client secret in Azure AD app registration",
+                "constraints": {
+                  "tabIndex": 2,
+                  "clearText": false,
+                  "required": "true",
+                  "capability": [
+                    "cloud"
+                  ]
+                }
+              }
+            },
+            "token": {
+              "type": "oauthSetting",
+              "oAuthSettings": {
+                "identityProvider": "oauth2generic",
+                "clientId": "@connectionParameters('clientId')",
+                "scopes": [
+                  "https://service.powerapps.com//.default"
+                ],
+                "redirectMode": "Global",
+                "redirectUrl": "https://global.consent.azure-apim.net/redirect",
+                "properties": {
+                  "IsFirstParty": "False",
+                  "AzureActiveDirectoryResourceId": "https://service.powerapps.com/",
+                  "IsOnbehalfofLoginSupported": false
+                },
+                "customParameters": {
+                  "authorizationUrlTemplate": {
+                    "value": "https://login.microsoftonline.com/common/oauth2/v2.0/authorize"
+                  },
+                  "tokenUrlTemplate": {
+                    "value": "https://login.microsoftonline.com/common/oauth2/v2.0/token"
+                  },
+                  "refreshUrlTemplate": {
+                    "value": "https://login.microsoftonline.com/common/oauth2/v2.0/token"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    },
+    "iconBrandColor": "#da3b01",
+    "capabilities": [
+      "actions"
+    ],
+    "publisher": "Troy Taylor",
+    "stackOwner": "Troy Taylor"
+  }
+}
