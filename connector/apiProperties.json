@@ -1,0 +1,15 @@
+{
+  "properties": {
+    "connectionParameters": {},
+    "iconBrandColor": "#8C3900",
+    "capabilities": [],
+    "scriptOperations": [
+      "ParseMermaidDiagram",
+      "ConvertMermaidToFormats",
+      "InvokeServer"
+    ],
+    "publisher": "Troy Taylor",
+    "stackOwner": "",
+    "policyTemplateInstances": []
+  }
+}
